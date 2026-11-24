@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#111827">
+    <title>XOXO – Game Portal</title>
+    <link rel="stylesheet" href="style.css?v=20261124b">
+    <script src="game.js?v=20261124i" defer></script>
+</head>
+<body>
+    <main class="page-shell">
+        <header class="topbar">
+            <a class="back-link" href="../../index.php">← Back to portal</a>
+            <p class="signed-in">Signed in: <strong id="player-name">Loading…</strong></p>
+        </header>
+
+        <div class="game-layout">
+            <section class="game-card" aria-labelledby="game-title">
+                <div class="game-heading">
+                    <p class="eyebrow">GAME PORTAL - CLASSIC</p>
+                    <h1 id="game-title">XOXO</h1>
+                    <p class="subtitle">Tic-tac-toe vs. the computer</p>
+                </div>
+
+                <div class="game-info">
+                    <p id="game-status" class="game-status" role="status" aria-live="polite">
+                        Loading game settings…
+                    </p>
+                    <p id="save-status" class="save-status" role="status" aria-live="polite"></p>
+                </div>
+
+                <section id="setup-panel" class="setup-panel" aria-label="Game setup">
+                    <fieldset class="mark-picker">
+                        <legend>Which mark do you want to play?</legend>
+                        <label class="mark-option">
+                            <input type="radio" name="player-mark" value="X" checked>
+                            <span>Play as X</span>
+                        </label>
+                        <label class="mark-option">
+                            <input type="radio" name="player-mark" value="O">
+                            <span>Play as O</span>
+                        </label>
+                    </fieldset>
+
+                    <fieldset class="board-mode-picker">
+                        <legend>Choose a board</legend>
+                        <label class="mark-option board-mode-option is-selected">
+                            <input type="radio" name="board-mode" value="classic" checked>
+                            <span>Classic · 3×3 · connect 3</span>
+                        </label>
+                        <label class="mark-option board-mode-option">
+                            <input type="radio" name="board-mode" value="large">
+                            <span>Large · 4×4 · connect 4</span>
+                        </label>
+                    </fieldset>
+
+                    <fieldset class="mark-style-picker">
+                        <legend>Choose an X style</legend>
+                        <div class="mark-style-choices">
+                            <label class="mark-style-choice">
+                                <input type="radio" name="x-style" value="../../assets/tictactoe_images/x1.png" checked>
+                                <img src="../../assets/tictactoe_images/x1.png" alt="X style 1">
+                            </label>
+                            <label class="mark-style-choice">
+                                <input type="radio" name="x-style" value="../../assets/tictactoe_images/x2.png">
+                                <img src="../../assets/tictactoe_images/x2.png" alt="X style 2">
+                            </label>
+                            <label class="mark-style-choice">
+                                <input type="radio" name="x-style" value="../../assets/tictactoe_images/x3.png">
+                                <img src="../../assets/tictactoe_images/x3.png" alt="X style 3">
+                            </label>
+                            <label class="mark-style-choice">
+                                <input type="radio" name="x-style" value="../../assets/tictactoe_images/x4.png">
+                                <img src="../../assets/tictactoe_images/x4.png" alt="X style 4">
+                            </label>
+                            <label class="mark-style-choice">
+                                <input type="radio" name="x-style" value="../../assets/tictactoe_images/x11.png">
+                                <img src="../../assets/tictactoe_images/x11.png" alt="X style 5">
+                            </label>
+                            <label class="mark-style-choice">
+                                <input type="radio" name="x-style" value="../../assets/tictactoe_images/x12.png">
+                                <img src="../../assets/tictactoe_images/x12.png" alt="X style 6">
+                            </label>
+                        </div>
+                    </fieldset>
+
+                    <fieldset class="mark-style-picker">
+                        <legend>Choose an O style</legend>
+                        <div class="mark-style-choices">
+                            <label class="mark-style-choice">
+                                <input type="radio" name="o-style" value="../../assets/tictactoe_images/o6.png" checked>
+                                <img src="../../assets/tictactoe_images/o6.png" alt="O style 1">
+                            </label>
+                            <label class="mark-style-choice">
+                                <input type="radio" name="o-style" value="../../assets/tictactoe_images/o5.png">
+                                <img src="../../assets/tictactoe_images/o5.png" alt="O style 2">
+                            </label>
+                            <label class="mark-style-choice">
+                                <input type="radio" name="o-style" value="../../assets/tictactoe_images/o7.png">
+                                <img src="../../assets/tictactoe_images/o7.png" alt="O style 3">
+                            </label>
+                            <label class="mark-style-choice">
+                                <input type="radio" name="o-style" value="../../assets/tictactoe_images/o8.png">
+                                <img src="../../assets/tictactoe_images/o8.png" alt="O style 4">
+                            </label>
+                            <label class="mark-style-choice">
+                                <input type="radio" name="o-style" value="../../assets/tictactoe_images/o9.png">
+                                <img src="../../assets/tictactoe_images/o9.png" alt="O style 5">
+                            </label>
+                            <label class="mark-style-choice">
+                                <input type="radio" name="o-style" value="../../assets/tictactoe_images/o10.png">
+                                <img src="../../assets/tictactoe_images/o10.png" alt="O style 6">
+                            </label>
+                        </div>
+                    </fieldset>
+
+                    <fieldset class="difficulty-picker">
+                        <legend>Choose a difficulty</legend>
+                        <div class="difficulty-choices">
+                            <label class="difficulty-option">
+                                <input type="radio" name="difficulty" value="easy">
+                                <span class="difficulty-name">Easy</span>
+                                <span class="difficulty-description">Random moves</span>
+                            </label>
+                            <label class="difficulty-option is-selected">
+                                <input type="radio" name="difficulty" value="medium" checked>
+                                <span class="difficulty-name">Medium</span>
+                                <span class="difficulty-description">Tactical AI</span>
+                            </label>
+                            <label class="difficulty-option">
+                                <input type="radio" name="difficulty" value="hard">
+                                <span class="difficulty-name">Hard</span>
+                                <span class="difficulty-description">Strategic AI</span>
+                            </label>
+                        </div>
+                    </fieldset>
+
+                    <button id="begin-game" class="primary-button" type="button" disabled>Start game</button>
+                </section>
+
+                <section id="game-area" class="game-area" aria-label="Tic-tac-toe game" hidden>
+                    <div class="board" id="board" role="group" aria-label="Tic-tac-toe board"></div>
+
+                    <div class="game-actions">
+                        <button id="new-game" class="primary-button" type="button" disabled>New game</button>
+                        <button id="change-settings" class="secondary-button" type="button">Change mark or style</button>
+                        <button id="retry-save" class="secondary-button" type="button" hidden>Retry save</button>
+                    </div>
+                    <p class="game-note" id="game-note"></p>
+                </section>
+            </section>
+
+            <aside class="side-column">
+                <section class="stats-card" aria-labelledby="stats-title">
+                    <p class="eyebrow">YOUR ACCOUNT</p>
+                    <h2 id="stats-title">Your stats</h2>
+                    <p class="account-name" id="account-name">Loading…</p>
+                    <dl class="stats-list">
+                        <div><dt>Games played</dt><dd id="games-played">–</dd></div>
+                        <div><dt>Total points</dt><dd id="total-points">–</dd></div>
+                    </dl>
+                </section>
+
+                <section class="leaderboard-card" aria-labelledby="leaderboard-title">
+                    <p class="eyebrow">TOP SCORES</p>
+                    <h2 id="leaderboard-title">XOXO leaderboard</h2>
+                    <ol id="leaderboard" class="leaderboard">
+                        <li class="empty-state">Loading leaderboard…</li>
+                    </ol>
+                </section>
+            </aside>
+        </div>
+        <p id="load-error" class="load-error" role="alert" hidden></p>
+    </main>
+    <dialog id="result-dialog" class="result-dialog" aria-labelledby="result-title">
+        <h2 id="result-title">Game over</h2>
+        <p id="result-message"></p>
+        <p id="result-save-status" class="result-save-status" role="status" aria-live="polite"></p>
+        <div class="result-actions">
+            <button id="result-retry" class="secondary-button" type="button" hidden>Retry save</button>
+            <button id="result-new-game" class="primary-button" type="button" disabled>New game</button>
+        </div>
+    </dialog>
+</body>
+</html>
