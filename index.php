@@ -202,7 +202,7 @@ $gameTitles = [
 $gameImages = [
     'snake' => '',
     'memory' => '',
-    'xoxo' => '',
+    'xoxo' => 'assets/tictactoe_images/xoxo_bg.jpeg',
     'sudoku' => '',
 ];
 
