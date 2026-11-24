@@ -161,11 +161,22 @@ $selectedAvatarInfo = $avatars[$currentAvatar];
 $games = [];
 $recentScores = [];
 $gameTotals = [];
+$leaderboards = [];
 $totalPoints = 0;
 
 if ($page !== 'profile') {
     $gamesStmt = $pdo->query('SELECT id, slug, title FROM games ORDER BY id ASC');
     $games = $gamesStmt->fetchAll();
+    usort($games, static function (array $first, array $second): int {
+        $firstAvailable = isGameImplemented((string) $first['slug']) ? 1 : 0;
+        $secondAvailable = isGameImplemented((string) $second['slug']) ? 1 : 0;
+
+        if ($firstAvailable !== $secondAvailable) {
+            return $secondAvailable <=> $firstAvailable;
+        }
+
+        return (int) $first['id'] <=> (int) $second['id'];
+    });
 
     $scoresStmt = $pdo->prepare(
         'SELECT s.score, s.played_at, g.slug AS game_slug, g.title AS game_title
@@ -190,6 +201,38 @@ if ($page !== 'profile') {
     foreach ($gameTotals as $entry) {
         $totalPoints += (int) $entry['total_points'];
     }
+
+    $overallLeaderboardStmt = $pdo->query(
+        'SELECT u.username, COALESCE(SUM(s.score), 0) AS total_points
+         FROM users u
+         JOIN scores s ON s.user_id = u.id
+         GROUP BY u.id, u.username
+         ORDER BY total_points DESC, u.username ASC
+         LIMIT 10'
+    );
+    $leaderboards[] = [
+        'slug' => '',
+        'title' => 'Overall points',
+        'entries' => $overallLeaderboardStmt->fetchAll(),
+    ];
+
+    $gameLeaderboardStmt = $pdo->prepare(
+        'SELECT u.username, SUM(s.score) AS total_points
+         FROM scores s
+         JOIN users u ON u.id = s.user_id
+         WHERE s.game_id = :game_id
+         GROUP BY u.id, u.username
+         ORDER BY total_points DESC, u.username ASC
+         LIMIT 10'
+    );
+    foreach ($games as $game) {
+        $gameLeaderboardStmt->execute([':game_id' => (int) $game['id']]);
+        $leaderboards[] = [
+            'slug' => (string) $game['slug'],
+            'title' => (string) $game['title'],
+            'entries' => $gameLeaderboardStmt->fetchAll(),
+        ];
+    }
 }
 
 $gameTitles = [
@@ -203,7 +246,7 @@ $gameImages = [
     'snake' => '',
     'memory' => '',
     'xoxo' => 'assets/tictactoe_images/xoxo_bg.jpeg',
-    'sudoku' => '',
+    'sudoku' => 'assets/sudoku_images/sudoku_bg.jpeg',
 ];
 
 $gameDescriptions = [
@@ -541,6 +584,78 @@ if (!empty($user['created_at'])) {
                 </div>
             </div>
 
+            <section class="panel public-leaderboard" aria-labelledby="public-leaderboard-title">
+                <div class="public-leaderboard-heading">
+                    <div>
+                        <h2 class="section-heading" id="public-leaderboard-title">Player leaderboards</h2>
+                        <p class="muted">Compare total points across the portal or browse scores by game.</p>
+                    </div>
+                </div>
+
+                <nav class="leaderboard-tabs" role="tablist" aria-label="Leaderboard categories">
+                    <?php foreach ($leaderboards as $boardIndex => $leaderboard): ?>
+                        <?php
+                        $leaderboardSlug = (string) $leaderboard['slug'];
+                        $leaderboardTitle = $leaderboardSlug === ''
+                            ? 'Overall points'
+                            : ($gameTitles[$leaderboardSlug] ?? (string) $leaderboard['title']);
+                        ?>
+                        <button
+                            type="button"
+                            class="leaderboard-tab"
+                            id="leaderboard-tab-<?= $boardIndex ?>"
+                            role="tab"
+                            aria-controls="leaderboard-page-<?= $boardIndex ?>"
+                            aria-selected="<?= $boardIndex === 0 ? 'true' : 'false' ?>"
+                            tabindex="<?= $boardIndex === 0 ? '0' : '-1' ?>"
+                        ><?= htmlspecialchars($leaderboardTitle, ENT_QUOTES, 'UTF-8') ?></button>
+                    <?php endforeach; ?>
+                </nav>
+
+                <?php foreach ($leaderboards as $boardIndex => $leaderboard): ?>
+                    <?php
+                    $leaderboardSlug = (string) $leaderboard['slug'];
+                    $leaderboardTitle = $leaderboardSlug === ''
+                        ? 'Overall points'
+                        : ($gameTitles[$leaderboardSlug] ?? (string) $leaderboard['title']);
+                    $medals = ['🥇', '🥈', '🥉'];
+                    $medalLabels = ['Gold medal', 'Silver medal', 'Bronze medal'];
+                    ?>
+                    <section
+                        class="leaderboard-page"
+                        id="leaderboard-page-<?= $boardIndex ?>"
+                        role="tabpanel"
+                        aria-labelledby="leaderboard-tab-<?= $boardIndex ?>"
+                        tabindex="0"
+                        aria-label="<?= htmlspecialchars($leaderboardTitle, ENT_QUOTES, 'UTF-8') ?>"
+                        <?= $boardIndex === 0 ? '' : 'hidden' ?>
+                    >
+                        <h3 class="leaderboard-page-title"><?= htmlspecialchars($leaderboardTitle, ENT_QUOTES, 'UTF-8') ?></h3>
+                        <?php if (empty($leaderboard['entries'])): ?>
+                            <p class="muted">No scores have been recorded for this list yet.</p>
+                        <?php else: ?>
+                            <ol class="player-ranking">
+                                <?php foreach ($leaderboard['entries'] as $rank => $entry): ?>
+                                    <li class="player-ranking-item">
+                                        <span class="player-rank"><?= $rank + 1 ?>.</span>
+                                        <span class="player-ranking-name">
+                                            <?php if (isset($medals[$rank])): ?>
+                                                <span class="player-medal" role="img" aria-label="<?= $medalLabels[$rank] ?>"><?= $medals[$rank] ?></span>
+                                            <?php endif; ?>
+                                            <span class="player-name-text"><?= htmlspecialchars((string) $entry['username'], ENT_QUOTES, 'UTF-8') ?></span>
+                                        </span>
+                                        <strong class="player-ranking-score">
+                                            <?= number_format((int) $entry['total_points']) ?>
+                                            <?= (int) $entry['total_points'] === 1 ? 'point' : 'points' ?>
+                                        </strong>
+                                    </li>
+                                <?php endforeach; ?>
+                            </ol>
+                        <?php endif; ?>
+                    </section>
+                <?php endforeach; ?>
+            </section>
+
             <script>
                 (function () {
                     const track = document.getElementById('carousel-track');
@@ -676,6 +791,49 @@ if (!empty($user['created_at'])) {
 
                     rebuildClones(0);
                     buildDots();
+                })();
+
+                (function () {
+                    const tabs = Array.from(document.querySelectorAll('.leaderboard-tab'));
+                    const pages = Array.from(document.querySelectorAll('.leaderboard-page'));
+                    if (!tabs.length || tabs.length !== pages.length) return;
+
+                    let currentPage = 0;
+                    const activatePage = (index, moveFocus = false) => {
+                        currentPage = index;
+                        tabs.forEach((tab, tabIndex) => {
+                            const isSelected = tabIndex === currentPage;
+                            tab.setAttribute('aria-selected', String(isSelected));
+                            tab.tabIndex = isSelected ? 0 : -1;
+                        });
+                        pages.forEach((page, index) => {
+                            page.hidden = index !== currentPage;
+                        });
+                        if (moveFocus) {
+                            tabs[currentPage].focus();
+                        }
+                    };
+
+                    tabs.forEach((tab, index) => {
+                        tab.addEventListener('click', () => activatePage(index));
+                        tab.addEventListener('keydown', (event) => {
+                            let nextIndex = index;
+                            if (event.key === 'ArrowRight') {
+                                nextIndex = (index + 1) % tabs.length;
+                            } else if (event.key === 'ArrowLeft') {
+                                nextIndex = (index - 1 + tabs.length) % tabs.length;
+                            } else if (event.key === 'Home') {
+                                nextIndex = 0;
+                            } else if (event.key === 'End') {
+                                nextIndex = tabs.length - 1;
+                            } else {
+                                return;
+                            }
+                            event.preventDefault();
+                            activatePage(nextIndex, true);
+                        });
+                    });
+                    activatePage(0);
                 })();
             </script>
         <?php endif; ?>

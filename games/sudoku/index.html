@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#111827">
+    <title>Sudoku – Game Portal</title>
+    <link rel="stylesheet" href="style.css?v=20261124a">
+    <script src="game.js?v=20261124a" defer></script>
+</head>
+<body>
+    <main class="page-shell">
+        <header class="topbar">
+            <a class="back-link" href="../../index.php">← Back to portal</a>
+            <p class="signed-in">Signed in: <strong id="player-name">Loading…</strong></p>
+        </header>
+
+        <div class="game-layout">
+            <section class="game-card" aria-labelledby="game-title">
+                <div class="game-heading">
+                    <p class="eyebrow">GAME PORTAL - LOGIC</p>
+                    <h1 id="game-title">Sudoku</h1>
+                    <p class="subtitle">Fill the 9×9 grid so every row, column, and 3×3 box contains 1–9.</p>
+                </div>
+
+                <div class="game-info">
+                    <p id="game-status" class="game-status" role="status" aria-live="polite">
+                        Loading game settings…
+                    </p>
+                    <p id="save-status" class="save-status" role="status" aria-live="polite"></p>
+                </div>
+
+                <section id="setup-panel" class="setup-panel" aria-label="Game setup">
+                    <fieldset class="difficulty-picker">
+                        <legend>Choose a difficulty</legend>
+                        <div class="difficulty-choices">
+                            <label class="difficulty-option">
+                                <input type="radio" name="difficulty" value="easy">
+                                <span class="difficulty-name">Easy</span>
+                                <span class="difficulty-description">20 points · +10 within 3:00</span>
+                            </label>
+                            <label class="difficulty-option is-selected">
+                                <input type="radio" name="difficulty" value="medium" checked>
+                                <span class="difficulty-name">Medium</span>
+                                <span class="difficulty-description">30 points · +10 within 6:00</span>
+                            </label>
+                            <label class="difficulty-option">
+                                <input type="radio" name="difficulty" value="hard">
+                                <span class="difficulty-name">Hard</span>
+                                <span class="difficulty-description">45 points · +10 within 10:00</span>
+                            </label>
+                        </div>
+                    </fieldset>
+
+                    <fieldset class="theme-picker">
+                        <legend>Choose a board color</legend>
+                        <div class="theme-choices">
+                            <label class="theme-option">
+                                <input type="radio" name="board-theme" value="ocean" checked>
+                                <span class="theme-swatch theme-ocean" aria-hidden="true"></span>
+                                <span>Ocean blue</span>
+                            </label>
+                            <label class="theme-option">
+                                <input type="radio" name="board-theme" value="mint">
+                                <span class="theme-swatch theme-mint" aria-hidden="true"></span>
+                                <span>Mint</span>
+                            </label>
+                            <label class="theme-option">
+                                <input type="radio" name="board-theme" value="violet">
+                                <span class="theme-swatch theme-violet" aria-hidden="true"></span>
+                                <span>Violet</span>
+                            </label>
+                            <label class="theme-option">
+                                <input type="radio" name="board-theme" value="rose">
+                                <span class="theme-swatch theme-rose" aria-hidden="true"></span>
+                                <span>Rose</span>
+                            </label>
+                            <label class="theme-option">
+                                <input type="radio" name="board-theme" value="amber">
+                                <span class="theme-swatch theme-amber" aria-hidden="true"></span>
+                                <span>Amber</span>
+                            </label>
+                        </div>
+                    </fieldset>
+
+                    <p class="setup-note">Easy highlights matching numbers. Medium and Hard keep this hint off.</p>
+                    <button id="begin-game" class="primary-button" type="button" disabled>Start puzzle</button>
+                </section>
+
+                <section id="game-area" class="game-area" hidden>
+                    <div class="game-toolbar">
+                        <p>Time <strong id="timer" aria-label="Elapsed time">00:00</strong></p>
+                        <p id="difficulty-label">Medium</p>
+                        <p id="score-label">30 points · +10 bonus within 6:00</p>
+                    </div>
+
+                    <div id="board" class="sudoku-board" role="grid" aria-label="Sudoku board"></div>
+
+                    <div class="number-pad" aria-label="Choose a number">
+                        <button type="button" data-number="1" aria-label="Enter 1">1</button>
+                        <button type="button" data-number="2" aria-label="Enter 2">2</button>
+                        <button type="button" data-number="3" aria-label="Enter 3">3</button>
+                        <button type="button" data-number="4" aria-label="Enter 4">4</button>
+                        <button type="button" data-number="5" aria-label="Enter 5">5</button>
+                        <button type="button" data-number="6" aria-label="Enter 6">6</button>
+                        <button type="button" data-number="7" aria-label="Enter 7">7</button>
+                        <button type="button" data-number="8" aria-label="Enter 8">8</button>
+                        <button type="button" data-number="9" aria-label="Enter 9">9</button>
+                        <button type="button" data-clear aria-label="Erase selected cell">Erase</button>
+                    </div>
+
+                    <div class="game-actions">
+                        <button id="check-board" class="secondary-button" type="button">Check puzzle</button>
+                        <button id="new-game" class="primary-button" type="button">New puzzle</button>
+                        <button id="change-settings" class="secondary-button" type="button">Change settings</button>
+                        <button id="retry-save" class="secondary-button" type="button" hidden>Retry save</button>
+                    </div>
+                    <p class="game-note" id="game-note"></p>
+                </section>
+            </section>
+
+            <aside class="side-column">
+                <section class="stats-card" aria-labelledby="stats-title">
+                    <p class="eyebrow">YOUR ACCOUNT</p>
+                    <h2 id="stats-title">Your Sudoku stats</h2>
+                    <p class="account-name" id="account-name">Loading…</p>
+                    <dl class="stats-list">
+                        <div><dt>Puzzles solved</dt><dd id="games-played">–</dd></div>
+                        <div><dt>Total points</dt><dd id="total-points">–</dd></div>
+                    </dl>
+                </section>
+
+                <section class="leaderboard-card" aria-labelledby="leaderboard-title">
+                    <p class="eyebrow">TOP SCORES</p>
+                    <h2 id="leaderboard-title">Sudoku leaderboard</h2>
+                    <ol id="leaderboard" class="leaderboard">
+                        <li class="empty-state">Loading leaderboard…</li>
+                    </ol>
+                </section>
+            </aside>
+        </div>
+        <p id="load-error" class="load-error" role="alert" hidden></p>
+    </main>
+
+    <dialog id="result-dialog" class="result-dialog" aria-labelledby="result-title">
+        <h2 id="result-title">Puzzle solved!</h2>
+        <p id="result-message"></p>
+        <p id="result-save-status" class="result-save-status" role="status" aria-live="polite"></p>
+        <div class="result-actions">
+            <button id="result-retry" class="secondary-button" type="button" hidden>Retry save</button>
+            <button id="result-new-game" class="primary-button" type="button" disabled>New puzzle</button>
+        </div>
+    </dialog>
+</body>
+</html>
